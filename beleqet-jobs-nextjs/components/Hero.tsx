@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, MapPin, ShieldCheck, BellRing, Send } from "lucide-react";
-import { popularSearches } from "@/lib/mockData";
+const popularSearches = ["Software Engineer", "UI/UX Designer", "Accountant", "Marketing", "Data Analyst"];
 
 export default function Hero() {
   const router = useRouter();

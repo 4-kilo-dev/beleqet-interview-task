@@ -9,7 +9,7 @@ import {
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
-import { categories } from "@/lib/mockData";
+import { getCategories, getJobs } from "@/lib/fetchers";
 
 const iconMap: Record<string, LucideIcon> = {
   laptop: Laptop,
@@ -19,9 +19,30 @@ const iconMap: Record<string, LucideIcon> = {
   "graduation-cap": GraduationCap,
   cog: Cog,
   "more-horizontal": MoreHorizontal,
+  technology: Laptop,
+  marketing: Megaphone,
+  finance: Landmark,
+  healthcare: HeartPulse,
+  education: GraduationCap,
+  engineering: Cog,
 };
 
-export default function CategoryGrid() {
+export default async function CategoryGrid() {
+  let categories: Array<{ id: string; slug: string; label: string; icon?: string; count: number }> = [];
+
+  try {
+    const [cats, jobsData] = await Promise.all([getCategories(), getJobs({ limit: 200 })]);
+    const countMap: Record<string, number> = {};
+    jobsData.items.forEach((j) => {
+      if (j.category?.id) countMap[j.category.id] = (countMap[j.category.id] || 0) + 1;
+    });
+    categories = cats.map((c) => ({ ...c, count: countMap[c.id] || 0 }));
+  } catch {
+    categories = [];
+  }
+
+  if (categories.length === 0) return null;
+
   return (
     <section className="container-page py-14">
       <div className="flex items-end justify-between mb-6">
@@ -36,7 +57,7 @@ export default function CategoryGrid() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {categories.map((cat) => {
-          const Icon = iconMap[cat.icon] ?? MoreHorizontal;
+          const Icon = iconMap[cat.icon ?? cat.slug] ?? MoreHorizontal;
           return (
             <Link
               key={cat.id}
@@ -44,7 +65,7 @@ export default function CategoryGrid() {
               className="flex flex-col items-center text-center gap-2 rounded-xl border border-border bg-white px-3 py-5 hover:border-brandGreen hover:shadow-card transition-all"
             >
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brandGreen/10 text-brandGreen">
-                <Icon className="h-4.5 w-4.5" />
+                <Icon className="h-4 w-4" />
               </span>
               <span className="text-xs font-semibold text-ink">{cat.label}</span>
               <span className="text-[11px] text-muted">{cat.count} jobs</span>

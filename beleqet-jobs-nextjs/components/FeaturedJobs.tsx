@@ -1,9 +1,18 @@
 import Link from "next/link";
-import { jobs } from "@/lib/mockData";
+import { getJobs } from "@/lib/fetchers";
 import JobCard from "./JobCard";
 
-export default function FeaturedJobs() {
-  const featured = jobs.filter((j) => j.featured);
+export default async function FeaturedJobs() {
+  let featured = [];
+  try {
+    const data = await getJobs({ featured: "true", limit: 5 });
+    featured = data.items;
+  } catch {
+    // fallback: silently fail, show nothing
+    featured = [];
+  }
+
+  if (featured.length === 0) return null;
 
   return (
     <section className="bg-white border-y border-border">
