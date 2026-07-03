@@ -1,14 +1,17 @@
 import Link from "next/link";
+import { getSession, logoutAction } from "@/lib/actions";
+import { LogOut, User as UserIcon, LayoutDashboard } from "lucide-react";
 
 const navItems = [
   { label: "Find Jobs", href: "/jobs" },
+  { label: "Browse Gigs", href: "/freelance" },
   { label: "About Us", href: "/about" },
   { label: "CV Maker", href: "/cv-maker" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Contact", href: "/contact" },
 ];
 
-export default function Header() {
+export default async function Header() {
+  const user = await getSession();
+
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-border">
       <div className="container-page flex items-center justify-between h-16">
@@ -29,19 +32,47 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden sm:inline-block text-sm font-medium text-ink hover:text-brandGreen transition-colors"
-          >
-            Login / Sign Up
-          </Link>
-          <Link
-            href="/post-job"
-            className="inline-flex items-center rounded-full bg-brandGreen px-4 py-2 text-sm font-semibold text-white hover:bg-darkGreen transition-colors"
-          >
-            Post a Job
-          </Link>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-3">
+              <Link
+                href={user.role === "EMPLOYER" ? "/dashboard/employer" : "/dashboard/freelancer"}
+                className="flex items-center gap-1.5 text-sm font-medium text-ink hover:text-brandGreen transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+              <div className="hidden sm:flex items-center gap-1 text-sm font-medium text-muted">
+                <UserIcon className="h-4 w-4" />
+                <span>{user.firstName}</span>
+              </div>
+              <form action={logoutAction} className="inline-block">
+                <button
+                  type="submit"
+                  className="p-2 text-muted hover:text-red-500 rounded-full hover:bg-pageBg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm font-medium text-ink hover:text-brandGreen transition-colors"
+            >
+              Login / Sign Up
+            </Link>
+          )}
+
+          {(!user || user.role === "EMPLOYER") && (
+            <Link
+              href="/post-job"
+              className="inline-flex items-center rounded-full bg-brandGreen px-4 py-2 text-sm font-semibold text-white hover:bg-darkGreen transition-colors"
+            >
+              Post a Job
+            </Link>
+          )}
         </div>
       </div>
     </header>
