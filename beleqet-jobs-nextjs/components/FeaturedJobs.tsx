@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getJobs } from "@/lib/fetchers";
+import { getJobs, type ApiJob } from "@/lib/fetchers";
 import JobCard from "./JobCard";
 
 export default async function FeaturedJobs() {
-  let featured = [];
+  let featured: ApiJob[] = [];
   try {
     const data = await getJobs({ featured: "true", limit: 5 });
     featured = data.items;

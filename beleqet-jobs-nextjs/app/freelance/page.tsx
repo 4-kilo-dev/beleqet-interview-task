@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { getFreelanceJobs } from "@/lib/fetchers";
+import { getFreelanceJobs, type FreelanceJob } from "@/lib/fetchers";
 import FreelanceListing from "@/components/FreelanceListing";
+
+type FreelanceJobsResult = { items: FreelanceJob[]; total: number; page: number; limit: number; totalPages: number };
 
 export const metadata = {
   title: "Browse Freelance Gigs | Beleqet",
@@ -17,7 +19,7 @@ export default async function FreelancePage({
   if (searchParams.q) params.q = searchParams.q;
   if (searchParams.category) params.category = searchParams.category;
 
-  let initialData = { items: [], total: 0, page: 1, limit: 12, totalPages: 0 };
+  let initialData: FreelanceJobsResult = { items: [], total: 0, page: 1, limit: 12, totalPages: 0 };
   try {
     const data = await getFreelanceJobs(params);
     // The backend may return items directly or nested

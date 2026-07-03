@@ -30,7 +30,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
     notFound();
   }
 
-  let related = [];
+  let related: import("@/lib/fetchers").ApiJob[] = [];
   try {
     const relData = await getJobs({ categoryId: job.category?.id ?? "", limit: 4 });
     related = relData.items.filter((j) => j.id !== job.id).slice(0, 3);
