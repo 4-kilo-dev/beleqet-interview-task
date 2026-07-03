@@ -46,7 +46,7 @@ export default async function Header() {
                 <UserIcon className="h-4 w-4" />
                 <span>{user.firstName}</span>
               </div>
-              <form action={async () => { await logoutAction(); }} className="inline-block">
+              <form action={logoutAction} className="inline-block">
                 <button
                   type="submit"
                   className="p-2 text-muted hover:text-red-500 rounded-full hover:bg-pageBg transition-colors"

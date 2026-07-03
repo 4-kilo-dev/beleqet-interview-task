@@ -4,7 +4,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:400
 
 async function refreshTokens() {
   const cookieStore = cookies();
-  const refreshToken = cookieStore.get("refresh_token")?.value;
+  const refreshToken = cookieStore.get("refreshToken")?.value;
   if (!refreshToken) return null;
 
   try {
@@ -16,13 +16,13 @@ async function refreshTokens() {
     if (!res.ok) throw new Error("Failed to refresh token");
 
     const data = await res.json();
-    cookieStore.set("access_token", data.accessToken, { 
+    cookieStore.set("accessToken", data.accessToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === "production", 
       path: "/", 
       sameSite: "strict" 
     });
-    cookieStore.set("refresh_token", data.refreshToken, { 
+    cookieStore.set("refreshToken", data.refreshToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === "production", 
       path: "/", 
@@ -31,8 +31,8 @@ async function refreshTokens() {
     return data.accessToken;
   } catch (err) {
     // Clear cookies on failure
-    cookieStore.delete("access_token");
-    cookieStore.delete("refresh_token");
+    cookieStore.delete("accessToken");
+    cookieStore.delete("refreshToken");
     cookieStore.delete("user");
     return null;
   }
@@ -44,7 +44,7 @@ export async function fetchBackend(path: string, options: RequestInit = {}) {
   let token: string | undefined;
   try {
     const cookieStore = cookies();
-    token = cookieStore.get("access_token")?.value;
+    token = cookieStore.get("accessToken")?.value;
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }

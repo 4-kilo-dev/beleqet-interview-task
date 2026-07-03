@@ -1,5 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { fetchBackend } from "./api";
 
 export async function loginAction(formData: FormData) {
@@ -17,13 +18,13 @@ export async function loginAction(formData: FormData) {
     });
 
     const cookieStore = cookies();
-    cookieStore.set("access_token", data.accessToken, {
+    cookieStore.set("accessToken", data.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
       sameSite: "strict",
     });
-    cookieStore.set("refresh_token", data.refreshToken, {
+    cookieStore.set("refreshToken", data.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
@@ -60,13 +61,13 @@ export async function registerAction(formData: FormData) {
     });
 
     const cookieStore = cookies();
-    cookieStore.set("access_token", data.accessToken, {
+    cookieStore.set("accessToken", data.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
       sameSite: "strict",
     });
-    cookieStore.set("refresh_token", data.refreshToken, {
+    cookieStore.set("refreshToken", data.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
@@ -85,28 +86,34 @@ export async function registerAction(formData: FormData) {
   }
 }
 
-export async function logoutAction() {
+export async function logoutAction(): Promise<void> {
   try {
     await fetchBackend("/auth/logout", { method: "POST" });
-  } catch (err) {
-    // Ignore error
+  } catch {
+    // Ignore backend error — clear cookies regardless
   }
 
   const cookieStore = cookies();
-  cookieStore.delete("access_token");
-  cookieStore.delete("refresh_token");
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
   cookieStore.delete("user");
-  return { success: true };
+  redirect("/");
 }
 
-export async function getSession() {
+export async function getSession(): Promise<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+} | null> {
   try {
     const cookieStore = cookies();
     const userStr = cookieStore.get("user")?.value;
     if (userStr) {
       return JSON.parse(userStr);
     }
-  } catch (err) {
+  } catch {
     // ignore
   }
   return null;
